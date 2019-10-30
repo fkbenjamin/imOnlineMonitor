@@ -5,7 +5,7 @@ const Sentry = require('@sentry/node');
 var yargs = require('yargs');
 
 //Arguments we pass to our script
-var argv = yargs.usage('This is my awesome program')
+var argv = yargs.usage('Kusama imOnline Monitoring')
   .options({
     'node': {
       description: 'Provide a websocket to query data from (e.g. wss://kusama-rpc.polkadot.io/)',
