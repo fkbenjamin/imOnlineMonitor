@@ -86,9 +86,12 @@ async function main () {
           indices are sorted, so every validator can only trigger this once per 10% of session
           **/
           if (header.number > lastWarn + (0.1 * bps) || authIndex > lastIndex) {
-            sendAlert(validators[authIndex],session)
-            lastWarn = header.number.toNumber()
-            lastIndex = authIndex
+            //So that we are not reporting at the start of a new session
+            if(Math.round(progress * 100) > 0) {
+              sendAlert(validators[authIndex],session)
+              lastWarn = header.number.toNumber()
+              lastIndex = authIndex
+            }
           } else {
             //Sending no new alert, but still putting it to the logs / cli
             console.log(validators[authIndex].toString(), "has not submitted a heartbeat this session[",Math.round(progress * 100),"%].")
