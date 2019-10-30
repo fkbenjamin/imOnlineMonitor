@@ -139,9 +139,8 @@ async function sendAlert(val, session, heartbeat) {
   console.log("Reporting",val.toString(),"for session" ,formatNumber(session))
   console.log("#####")
   if (sentry != undefined) {
-    console.log("we would alert")
+    Sentry.captureMessage(val.toString() +  "is reported offline");
   }
-  //Sentry.captureMessage(val.toString() +  "is reported offline");
 }
 
 main()
