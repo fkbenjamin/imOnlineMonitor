@@ -1,8 +1,8 @@
 {
   "dependencies": {
-    "@polkadot/api": "^0.95.2",
-    "@polkadot/rpc-core": "^0.95.2",
-    "@sentry/node": "5.7.1",
+    "@polkadot/api": "^0.96.1",
+    "@polkadot/rpc-core": "^0.96.1",
+    "@sentry/node": "5.9.0",
     "yargs": "^14.2.0"
   }
 }
