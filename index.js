@@ -108,17 +108,17 @@ async function main () {
               sendAlert(validators[authIndex],session)
               lastWarn = header.number.toNumber()
               lastIndex = authIndex
-              prom.imOnline.set({validator: validators[authIndex].toString(), chain: chain, name: nodeName, version: nodeVersion }, 1);
+              prom.imOnline_failure.set({validator: validators[authIndex].toString(), chain: chain, name: nodeName, version: nodeVersion }, 1);
             }
           } else {
             //Sending no new alert, but still putting it to the logs / cli
             console.log(validators[authIndex].toString(), "has not submitted a heartbeat this session[",Math.round(progress * 100),"%].")
-            prom.imOnline.set({validator: validators[authIndex].toString(), chain: chain, name: nodeName, version: nodeVersion }, 1);
+            prom.imOnline_failure.set({validator: validators[authIndex].toString(), chain: chain, name: nodeName, version: nodeVersion }, 1);
           }
         } else {
           //Indicates that validator has sent a heartbeat this session -> is working properly
           console.log("Everything good -",validators[authIndex].toString()," sent a heartbeat.")
-          prom.imOnline.set({validator: validators[authIndex].toString(), chain: chain, name: nodeName, version: nodeVersion }, 0);
+          prom.imOnline_failure.set({validator: validators[authIndex].toString(), chain: chain, name: nodeName, version: nodeVersion }, 0);
         }
       }
   });

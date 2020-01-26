@@ -13,16 +13,14 @@ const injectMetricsRoute = (app) => {
   });
 }
 
-const imOnline = new promClient.Gauge({
-  name: 'polkadot_imOnline',
+const imOnline_failure = new promClient.Gauge({
+  name: 'polkadot_imOnline_failure',
   help: 'Check imoOnline status',
-  labelNames: ['status', 'validator', 'chain', 'name', 'version'],
+  labelNames: ['validator', 'chain', 'name', 'version'],
 });
-
-
 
 module.exports = {
   startCollection,
   injectMetricsRoute,
-  imOnline,
+  imOnline_failure,
 };
