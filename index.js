@@ -96,8 +96,6 @@ async function main () {
     let validators = await api.query.session.validators();
     //indices of validators we are monitoring
     let authIndices = await getIndices(api,vals,validators);
-
-
     for (const [_, authIndex] of authIndices.entries()) {
         console.log(`Checking AuthIndex #${authIndex}, Session #${session}, Progress ${Math.round(progress * 100)}%`);
         let heartbeat = await getHeartbeat(api, session, authIndex)
