@@ -2,7 +2,10 @@ const { ApiPromise, WsProvider, ApiRx } = require('@polkadot/api');
 const { DerivedSessionInfo } = require('@polkadot/api-derive/types');
 const { formatNumber } = require('@polkadot/util');
 const Sentry = require('@sentry/node');
+const express = require('express');
 var yargs = require('yargs');
+const prom = require('./promClient');
+
 
 //Arguments we pass to our script
 var argv = yargs.usage('Kusama imOnline Monitoring')
@@ -30,6 +33,13 @@ var argv = yargs.usage('Kusama imOnline Monitoring')
 const vals = argv.validator
 //Setting up the websocket
 const provider = new WsProvider(argv.node);
+
+const app = express();
+const port = 5555;
+
+/// Polkadot API Endpoint
+const LocalEndpoint = argv.node;
+
 //Blocks Per Session (KUSAMA)
 const bps = 2400;
 //initialize correct sentry dsn to alert to
@@ -45,6 +55,10 @@ async function main () {
   const api = await ApiPromise.create({
     provider: provider
     });
+
+    prom.injectMetricsRoute(app);
+    prom.startCollection();
+    app.listen(port, () => console.log(`imOnline monitor running at ${argv.node}`));
 
   // Retrieve the chain & node information information via rpc calls
   const [chain, nodeName, nodeVersion] = await Promise.all([
@@ -64,7 +78,7 @@ async function main () {
   let lastIndex = 0;
   //subscribing to new heads of the chain
   const unsubscribe = await api.rpc.chain.subscribeNewHeads(async (header) => {
-    console.log(`Chain is at block: #${header.number}`);
+    console.log(`Chain is at block: #${header.number} hash: #${header.hash}`);
     let progress = await getCurrentSessionProgress(api)
     let session = await getSession(api, header.number)
     /**
@@ -72,9 +86,12 @@ async function main () {
     we requery this & authIndices everytime since they can change over time
     we could query less (e.g when a new session / era starts), but this is much simpler
     **/
+
     let validators = await api.query.session.validators();
     //indices of validators we are monitoring
     let authIndices = await getIndices(api,vals,validators);
+
+
     for (const [_, authIndex] of authIndices.entries()) {
         console.log(`Checking AuthIndex #${authIndex}, Session #${session}, Progress ${Math.round(progress * 100)}%`);
         let heartbeat = await getHeartbeat(api, session, authIndex)
@@ -91,14 +108,17 @@ async function main () {
               sendAlert(validators[authIndex],session)
               lastWarn = header.number.toNumber()
               lastIndex = authIndex
+              prom.imOnline.set({validator: validators[authIndex].toString(), chain: chain, name: nodeName, version: nodeVersion }, 1);
             }
           } else {
             //Sending no new alert, but still putting it to the logs / cli
             console.log(validators[authIndex].toString(), "has not submitted a heartbeat this session[",Math.round(progress * 100),"%].")
+            prom.imOnline.set({validator: validators[authIndex].toString(), chain: chain, name: nodeName, version: nodeVersion }, 1);
           }
         } else {
           //Indicates that validator has sent a heartbeat this session -> is working properly
           console.log("Everything good -",validators[authIndex].toString()," sent a heartbeat.")
+          prom.imOnline.set({validator: validators[authIndex].toString(), chain: chain, name: nodeName, version: nodeVersion }, 0);
         }
       }
   });
@@ -141,6 +161,8 @@ async function sendAlert(val, session, heartbeat) {
   console.log("#####")
   console.log("Reporting",val.toString(),"for session" ,formatNumber(session))
   console.log("#####")
+
+  prom.imOnline.set({validator: validators[authIndex].toString(), chain: chain, name: nodeName, version: nodeVersion }, 1);
   if (sentry != undefined) {
     Sentry.captureMessage(val.toString() +  "is reported offline");
   }
