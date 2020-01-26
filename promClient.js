@@ -13,24 +13,6 @@ const injectMetricsRoute = (app) => {
   });
 }
 
-const babeEquivocations = new promClient.Counter({
-  name: 'offences_monitor_babe_equivocations_total',
-  help: 'The number of babe equivocations and when.',
-  labelNames: ['offenderAddress'],
-});
-
-const grandpaEquivocations = new promClient.Counter({
-  name: 'offences_monitor_grandpa_equivocations_total',
-  help: 'The number of grandpa equivocations and when.',
-  labelNames: ['offenderAddress'],
-});
-
-const unresponsivenessReports = new promClient.Counter({
-  name: 'offences_monitor_unresponsiveness_report_total',
-  help: 'The number of unresponsiveness reports and when.',
-  labelNames: ['offenderAddress'],
-});
-
 const imOnline = new promClient.Gauge({
   name: 'polkadot_imOnline',
   help: 'Check imoOnline status',
