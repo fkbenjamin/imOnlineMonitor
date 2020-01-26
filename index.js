@@ -166,7 +166,7 @@ async function sendAlert(val, session, heartbeat) {
   console.log("Reporting",val.toString(),"for session" ,formatNumber(session))
   console.log("#####")
 
-  prom.imOnline.set({validator: validators[authIndex].toString(), chain: chain, name: nodeName, version: nodeVersion }, 1);
+  prom.imOnline_failure.set({validator: validators[authIndex].toString(), chain: chain, name: nodeName, version: nodeVersion }, 1);
   if (sentry != undefined) {
     Sentry.captureMessage(val.toString() +  "is reported offline");
   }
