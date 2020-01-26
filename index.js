@@ -26,6 +26,12 @@ var argv = yargs.usage('Kusama imOnline Monitoring')
       type: 'string',
       required: false,
       alias: 'sentry',
+    },
+    'port': {
+      description: 'Prometheus exporter port',
+      type: 'interger',
+      required: false,
+      default: 5555,
     }
   }).argv;
 
@@ -35,7 +41,7 @@ const vals = argv.validator
 const provider = new WsProvider(argv.node);
 
 const app = express();
-const port = 5555;
+const port = argv.port;
 
 /// Polkadot API Endpoint
 const LocalEndpoint = argv.node;
